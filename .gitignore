@@ -5,7 +5,8 @@ target/
 !**/src/test/**/target/
 
 ### STS ###
-.apt_generated
+.apt_generatedgit commit -m "init: spring boot secure-chat"
+
 .classpath
 .factorypath
 .project
