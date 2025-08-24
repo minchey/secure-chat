@@ -7,72 +7,74 @@ import java.time.Instant;
 import java.util.*;
 
 /**
- * 단일 채팅방 도메인.
- * - joinHardcoded(userId): 사전 레지스트리에서 세션 찾아 입장
- * - post(msg): 방 멤버에게 브로드캐스트
- * - leave(userId): 퇴장 브로드캐스트
+ * 채팅방 한 개를 관리합니다.
+ * - 누가 들어왔는지 기억하고(join/leave)
+ * - 방 안 사람 모두에게 메시지를 뿌립니다(post)
  */
 public class ChatRoom {
-    private final String roomId;
+    private final String roomId;                                   // 이 방의 이름/ID
+    private final Map<String, InMemorySession> registry;            // 미리 등록된 유저 좌석표(userId -> session)
+    private final Map<String, InMemorySession> members = new HashMap<>(); // 현재 방에 들어온 사람들
+    private final List<MsgFormat> history = new ArrayList<>();      // (옵션) 간단 히스토리
 
-    /** 현재 방에 입장해 있는 멤버들 (userId -> session) */
-    private final Map<String, InMemorySession> members = new HashMap<>();
-
-    /** 하드코딩 세션 레지스트리 (userId -> session) : 생성자 주입 */
-    private final Map<String, InMemorySession> registry;
-
-    /** (선택) 간단한 히스토리 저장 */
-    private final List<MsgFormat> history = new ArrayList<>();
-
-    public ChatRoom(String roomId, Map<String, InMemorySession> sessionRegistry) {
+    /**
+     * @param roomId   방 ID (예: "room-1")
+     * @param registry 하드코딩된 세션 목록(userId -> session)
+     */
+    public ChatRoom(String roomId, Map<String, InMemorySession> registry) {
         this.roomId = roomId;
-        this.registry = sessionRegistry;
+        this.registry = registry;
     }
 
-    /** 하드코딩 레지스트리에서 세션 찾아 입장시키기 */
+    /** 하드코딩 등록표에서 유저를 찾아 이 방에 입장시킵니다. */
     public synchronized void joinHardcoded(String userId) {
         InMemorySession s = registry.get(userId);
-        if (s == null) return; // 등록되지 않은 유저는 무시
-        if (members.containsKey(userId)) return; // 이미 입장한 경우 무시
+        if (s == null) return;               // 등록 안 되어 있으면 무시
+        if (members.containsKey(userId)) return; // 이미 들어와 있으면 무시
         members.put(userId, s);
         broadcast(systemMsg(userId + " joined"));
     }
 
-    /** 퇴장 */
+    /** 방에서 내보냅니다(있을 때만). */
     public synchronized void leave(String userId) {
         if (members.remove(userId) != null) {
             broadcast(systemMsg(userId + " left"));
         }
     }
 
-    /** 메시지 브로드캐스트 (방 불일치/미입장 방어 포함) */
+    /**
+     * 한 메시지를 방 사람 모두에게 뿌립니다.
+     * - 보낸 사람이 이 방에 들어와 있어야 함
+     * - 메시지의 roomId가 이 방과 같아야 함
+     */
     public synchronized void post(MsgFormat msg) {
-        if (!roomId.equals(msg.roomId)) return;         // 방 불일치 방어
-        if (!members.containsKey(msg.from)) return;     // 미입장 사용자는 무시
-        history.add(msg);                                // (옵션) 히스토리 보관
+        if (!roomId.equals(msg.roomId)) return;        // 다른 방으로 온 메시지면 무시
+        if (!members.containsKey(msg.from)) return;    // 입장하지 않은 사람이면 무시
+        history.add(msg);                              // (옵션) 히스토리에 저장
         broadcast(msg);
     }
 
-    /** (옵션) 읽기 전용 히스토리 */
+    /** (읽기 전용) 지금까지의 히스토리 */
     public List<MsgFormat> getHistory() {
         return Collections.unmodifiableList(history);
     }
 
-    /** 내부 브로드캐스트 */
+    /* -------- 내부 도우미들 -------- */
+
     private void broadcast(MsgFormat msg) {
         for (InMemorySession s : members.values()) {
-            s.outbound.send(msg);
+            s.outbound.send(msg); // 각 사람의 통로(콘솔/소켓 등)로 전송
         }
     }
 
-    /** 시스템 메시지 생성 (항상 ts 채우기) */
-    private MsgFormat systemMsg(String body) {
+    private MsgFormat systemMsg(String text) {
         MsgFormat m = new MsgFormat();
         m.type = "system";
         m.roomId = roomId;
         m.from = "system";
-        m.body = body;
-        m.ts = Instant.now(); // 서버 기준 시간
+        m.body = text;
+        m.ts = Instant.now();                  // 시스템 메시지도 시간 채움
+        m.msgId = java.util.UUID.randomUUID().toString();
         return m;
     }
 }
