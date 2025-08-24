@@ -3,9 +3,12 @@ package com.chatproject.secure_chat.transport;
 import com.chatproject.secure_chat.model.MsgFormat;
 import com.chatproject.secure_chat.shared.Jsons;
 
-/** 테스트용: 브로드캐스트 결과를 콘솔(JSON 한 줄)로 출력 */
+/**
+ * 전송 구현 1: 콘솔로 JSON 한 줄을 찍어서 "보낸 것처럼" 동작.
+ * 나중에 소켓 전송기로 쉽게 교체할 수 있게 Outbound 인터페이스를 구현한다.
+ */
 public class ConsoleOutbound implements Outbound {
-    private final String userId; // 수신자 식별(로그용)
+    private final String userId; // 수신자 표시용
 
     public ConsoleOutbound(String userId) {
         this.userId = userId;
