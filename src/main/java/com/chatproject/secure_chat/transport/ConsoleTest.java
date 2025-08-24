@@ -1,27 +1,22 @@
-package com.chatproject.secure_chat.transport;
-
+import com.chatproject.secure_chat.chat.ChatRoom;
+import com.chatproject.secure_chat.console.ConsoleInboundLoop;
 import com.chatproject.secure_chat.session.InMemorySession;
-import com.chatproject.secure_chat.model.MsgFormat;
-import com.chatproject.secure_chat.shared.MessageNormalizer;
+import com.chatproject.secure_chat.transport.ConsoleOutbound;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class ConsoleTest {
     public static void main(String[] args) {
+        // 0) 하드코딩 등록표
+        Map<String, InMemorySession> reg = new HashMap<>();
+        reg.put("alice", new InMemorySession("alice", new ConsoleOutbound("alice")));
+        reg.put("bob",   new InMemorySession("bob",   new ConsoleOutbound("bob")));
 
-        // 0) 전송기
-        ConsoleOutbound out = new ConsoleOutbound("alice");
+        // 1) 방 만들기
+        ChatRoom room = new ChatRoom("room-1", reg);
 
-        // 0.5) ✅ 세션 만들어서 전송기 꽂기
-        InMemorySession s = new InMemorySession("alice", out);
-
-        // 1) 메시지
-        MsgFormat m = new MsgFormat();
-        m.type = "message";
-        m.roomId = "room-1";
-        m.from = "alice";
-        m.body = "세션 테스트!";
-        MessageNormalizer.normalize(m);
-
-        // 바로 출력해보기
-        s.outbound.send(m);
-
+        // 2) 콘솔 루프 시작 (다른 스레드)
+        new Thread(new ConsoleInboundLoop(room), "console-json-loop").start();
     }
 }
