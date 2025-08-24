@@ -15,7 +15,7 @@ public class ChatRoom {
     private final String roomId;                                   // 이 방의 이름/ID
     private final Map<String, InMemorySession> registry;            // 미리 등록된 유저 좌석표(userId -> session)
     private final Map<String, InMemorySession> members = new HashMap<>(); // 현재 방에 들어온 사람들
-    private final List<MsgFormat> history = new ArrayList<>();      // (옵션) 간단 히스토리
+    private final List<MsgFormat> history = new ArrayList<>();      // 간단 히스토리
 
     /**
      * @param roomId   방 ID (예: "room-1")
@@ -50,7 +50,7 @@ public class ChatRoom {
     public synchronized void post(MsgFormat msg) {
         if (!roomId.equals(msg.roomId)) return;        // 다른 방으로 온 메시지면 무시
         if (!members.containsKey(msg.from)) return;    // 입장하지 않은 사람이면 무시
-        history.add(msg);                              // (옵션) 히스토리에 저장
+        history.add(msg);                              // 히스토리에 저장
         broadcast(msg);
     }
 
