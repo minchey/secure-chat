@@ -54,6 +54,28 @@ public class ChatRoom {
         broadcast(msg);
     }
 
+    /**방안 멤법 리스트 출력 */
+    public synchronized void sendMembersTo(String requesterId) {
+        // 요청자가 방에 들어와 있는지 확인(입장 안 했으면 무시)
+        var session = members.get(requesterId);
+        if (session == null) return;
+
+        // 현재 멤버 목록을 문자열로 만들기
+        String list = String.join(", ", members.keySet());
+        if (list.isBlank()) list = "(none)";
+
+        // 한 줄짜리 시스템 메시지로 요청자에게만 보내기
+        MsgFormat m = new MsgFormat();
+        m.type = "system";
+        m.roomId = roomId;
+        m.from = "system";
+        m.body = "[members] " + list;
+        m.ts = Instant.now();
+        m.msgId = java.util.UUID.randomUUID().toString();
+
+        session.outbound.send(m); // 요청자에게만 전송
+    }
+
     /** (읽기 전용) 지금까지의 히스토리 */
     public List<MsgFormat> getHistory() {
         return Collections.unmodifiableList(history);
