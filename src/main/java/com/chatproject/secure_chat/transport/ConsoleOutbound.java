@@ -10,7 +10,7 @@ import com.chatproject.secure_chat.shared.Jsons;
  * - 같은 인터페이스(Outbound)를 유지하면 나중에 Socket/WebSocket 구현으로 쉽게 교체 가능합니다.
  */
 public class ConsoleOutbound implements Outbound {
-    /** (선택) 수신자 식별용 라벨. 로깅/디버깅 편의를 위해 유지합니다. */
+    /** (선택) 수신자 식별용 라벨. 로깅/디버깅 편의를 위해   유지합니다. */
     private final String userId;
 
     /**
