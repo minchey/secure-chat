@@ -55,6 +55,8 @@ public class ChatRoom {
         if (s == null) return;                    // 미등록 사용자
         if (members.containsKey(userId)) return; // 이미 입장
         members.put(userId, s);
+        // ✅ 입장 직후, 그 사람에게만 지난 대화 n개를 보여준다(예: 50개)
+        sendHistoryTo(userId, 50);
         broadcast(systemMsg(userId + " joined"));
     }
 
