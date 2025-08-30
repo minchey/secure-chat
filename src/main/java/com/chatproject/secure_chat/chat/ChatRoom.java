@@ -121,6 +121,28 @@ public class ChatRoom {
         session.outbound.send(m); // 요청자에게만 전송
     }
 
+    /** 요청자에게만 최근 N개 히스토리를 순서대로 전송합니다. 요청자가 방에 없으면 무시. */
+    public synchronized void sendHistoryTo(String requesterId, int limit) {
+        var session = members.get(requesterId);
+        if (session == null) return; // 입장하지 않았으면 무시
+
+        int size = history.size();
+        int n = Math.min(Math.max(limit, 0), size);
+        int start = size - n;
+
+        // 헤더(시작 알림) 한 줄 보내기
+        session.outbound.send(systemMsg("[history] last " + n + " messages"));
+
+        // 최근 n개 메시지 차례대로 재전송
+        for (int i = start; i < size; i++) {
+            session.outbound.send(history.get(i));
+        }
+
+        // 끝 표시(선택)
+        session.outbound.send(systemMsg("[history] end"));
+    }
+
+
     /* ---------- 내부 도우미 ---------- */
 
     /** 방 멤버 전원에게 전송합니다. (private helper) */
