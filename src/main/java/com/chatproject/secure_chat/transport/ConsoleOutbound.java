@@ -33,7 +33,7 @@ public class ConsoleOutbound implements Outbound {
      */
     @Override //send 오버라이딩
     public void send(MsgFormat msg) {
-        try {
+        try { //예외처리
             System.out.println(Jsons.mapper().writeValueAsString(msg));
         } catch (Exception e) {
             e.printStackTrace(); // 변환 실패 시: 개발 단계에선 스택트레이스 출력
