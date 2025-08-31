@@ -31,7 +31,7 @@ public class ConsoleOutbound implements Outbound {
      *
      * @param msg 보낼 메시지(보통 정규화/검증을 통과한 객체)
      */
-    @Override
+    @Override //send 오버라이딩
     public void send(MsgFormat msg) {
         try {
             System.out.println(Jsons.mapper().writeValueAsString(msg));
