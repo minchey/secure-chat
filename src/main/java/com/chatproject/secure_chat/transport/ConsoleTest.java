@@ -5,7 +5,7 @@ import com.chatproject.secure_chat.transport.ConsoleOutbound;
 
 import java.util.HashMap;
 import java.util.Map;
-
+//테스트용 메인클래스
 public class ConsoleTest {
     public static void main(String[] args) {
         // 0) 하드코딩 등록표
