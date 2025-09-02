@@ -33,6 +33,7 @@ public final class MessageNormalizer {
         if (m== null) return null;
 
         // 1) 공백 제거 + type 소문자 통일
+        // trim = 공백제거  toLowerCase = 소문자로
         if (m.type   != null) m.type   = m.type.trim().toLowerCase();
         if (m.roomId != null) m.roomId = m.roomId.trim();
         if (m.from   != null) m.from   = m.from.trim();
