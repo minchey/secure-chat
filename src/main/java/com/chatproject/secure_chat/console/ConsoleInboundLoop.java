@@ -64,7 +64,7 @@ public class ConsoleInboundLoop implements Runnable {
                         case "leave"   -> room.leave(msg.from);
                         case "message" -> room.post(msg);
                         case "members" -> room.sendMembersTo(msg.from);
-                        case "history" -> room.sendHistoryTo(msg.from, 50); // body 무시, 고정 50개
+                        //case "history" -> room.sendHistoryTo(msg.from, 50); // body 무시, 고정 50개
                         default        -> System.err.println("[WARN] unknown type: " + msg.type);
                     }
                 } catch (Exception parseErr) {
