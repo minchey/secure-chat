@@ -32,6 +32,9 @@ public class ChatRoom {
     /** (옵션) 메시지 히스토리. */
     private final List<MsgFormat> history = new ArrayList<>();
 
+    /** 히스토리 최대치 */
+    private static final int DEFAULT_HISTORY_ON_JOIN = 50;
+
     /**
      * 채팅방을 생성합니다.
      *
